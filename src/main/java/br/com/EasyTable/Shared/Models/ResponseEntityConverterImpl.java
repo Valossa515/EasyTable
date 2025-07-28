@@ -56,10 +56,6 @@ public class ResponseEntityConverterImpl implements  IResponseEntityConverter {
             return ResponseEntity.noContent().build();
         }
 
-        if (response.getResult() != null) {
-            return buildResult(response.getResult(), HttpStatus.valueOf(response.getStatusCode()));
-        }
-
         return buildResult(response.getResult(), HttpStatus.valueOf(response.getStatusCode()));
     }
 
