@@ -1,23 +1,26 @@
 package br.com.EasyTable.Borders.Entities;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@EqualsAndHashCode(callSuper = true)
 @Document(collection = "pedidos")
-@Getter
-@Setter
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 public class Pedido extends DatabaseEntityBase {
+
     private UUID mesaId;
-    private List<ItemCardapio> itens;
+
+    @Builder.Default
+    private List<ItemCardapio> itens = new ArrayList<>();
+
     private LocalDateTime dataHora;
+
     private String status;
 }

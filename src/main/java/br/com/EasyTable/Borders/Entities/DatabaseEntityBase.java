@@ -1,14 +1,16 @@
 package br.com.EasyTable.Borders.Entities;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@SuperBuilder
 public abstract class DatabaseEntityBase {
     @Id
-    private UUID id = UUID.randomUUID();
+    @Builder.Default
+    private String id = UUID.randomUUID().toString();
 }
