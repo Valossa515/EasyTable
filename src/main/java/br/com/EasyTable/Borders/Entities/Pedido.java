@@ -1,5 +1,6 @@
 package br.com.EasyTable.Borders.Entities;
 
+import br.com.EasyTable.Shared.Enums.PedidoStatus;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,13 +15,9 @@ import java.util.UUID;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class Pedido extends DatabaseEntityBase {
-
-    private UUID mesaId;
-
+    private String mesaId;
     @Builder.Default
     private List<ItemCardapio> itens = new ArrayList<>();
-
     private LocalDateTime dataHora;
-
-    private String status;
+    private PedidoStatus status;
 }
