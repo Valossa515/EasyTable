@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Mesa extends DatabaseEntityBase {
     private int numero;
     private boolean ativa;

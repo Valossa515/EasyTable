@@ -9,6 +9,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class DatabaseEntityBase {
     @Id
     @Builder.Default

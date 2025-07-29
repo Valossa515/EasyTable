@@ -6,6 +6,8 @@ import br.com.EasyTable.Borders.Dtos.Responses.CreatePedidoResponse;
 import br.com.EasyTable.Borders.Entities.Pedido;
 import br.com.EasyTable.Borders.Handlers.ICreatePedidoHandler;
 import br.com.EasyTable.Repositories.PedidoRepository;
+import br.com.EasyTable.Services.KafkaPedidoProducerService;
+import br.com.EasyTable.Services.RedisService;
 import br.com.EasyTable.Shared.Handlers.HandlerBase;
 import br.com.EasyTable.Shared.Handlers.HandlerResponseWithResult;
 import br.com.EasyTable.Shared.Properties.MessageResources;
@@ -23,26 +25,28 @@ public class CreatePedidoHandler extends HandlerBase<CreatePedidoRequest, Create
     private static final Logger logger = LoggerFactory.getLogger(CreatePedidoHandler.class);
     private final PedidoRepository pedidoRepository;
     private final IPedidoAdapter pedidoAdapter;
+    private final KafkaPedidoProducerService kafkaService;
+    private final RedisService redisService;
 
-    public CreatePedidoHandler(Validator validator, PedidoRepository pedidoRepository, IPedidoAdapter pedidoAdapter) {
+    public CreatePedidoHandler
+            (Validator validator,
+             PedidoRepository pedidoRepository,
+             IPedidoAdapter pedidoAdapter,
+             KafkaPedidoProducerService kafkaService,
+             RedisService redisService) {
         super(logger, validator);
         this.pedidoRepository = pedidoRepository;
         this.pedidoAdapter = pedidoAdapter;
+        this.kafkaService = kafkaService;
+        this.redisService = redisService;
     }
 
     @Override
     protected CompletableFuture<HandlerResponseWithResult<CreatePedidoResponse>> doExecute(CreatePedidoRequest request) {
         return CompletableFuture.supplyAsync(() -> {
 
-        var novoPedido = new CreatePedidoRequest(
-                request.mesaId(),
-                request.itens(),
-                request.dataHora(),
-                request.status()
-        );
-
             try {
-                Pedido pedido = pedidoAdapter.toPedido(novoPedido);
+                Pedido pedido = pedidoAdapter.toPedido(request);
                 Pedido pedidoSalvo = pedidoRepository.save(pedido);
 
                 if (pedidoSalvo == null) {
@@ -50,11 +54,8 @@ public class CreatePedidoHandler extends HandlerBase<CreatePedidoRequest, Create
                             MessageResources.get("error.create_item_error"));
                 }
 
-                // TODO: salvar no Redis (você pode criar uma camada RedisService para isso)
-                // redisService.salvarPedido(pedidoSalvo);
-
-                // TODO: enviar para Kafka futuramente se necessário
-                // kafkaService.enviarPedidoCriado(pedidoSalvo);
+                redisService.salvarPedido("pedido:" + pedidoSalvo.getId(), pedidoSalvo, 60);
+                kafkaService.enviarPedidoCriado(pedidoSalvo);
 
                 var response = new CreatePedidoResponse(
                         pedidoSalvo.getId(),

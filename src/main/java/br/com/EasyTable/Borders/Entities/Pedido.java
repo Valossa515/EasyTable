@@ -4,20 +4,20 @@ import br.com.EasyTable.Shared.Enums.PedidoStatus;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Document(collection = "pedidos")
 @Data
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pedido extends DatabaseEntityBase {
     private String mesaId;
     @Builder.Default
     private List<ItemCardapio> itens = new ArrayList<>();
-    private LocalDateTime dataHora;
+    private Date dataHora;
     private PedidoStatus status;
 }

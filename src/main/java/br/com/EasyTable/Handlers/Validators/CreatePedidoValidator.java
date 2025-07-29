@@ -20,9 +20,9 @@ public class CreatePedidoValidator implements ConstraintValidator<ValidCreatePed
             isValid = false;
         }
 
-        if (request.itens() == null || request.itens().isEmpty()) {
+        if (request.itensIds() == null || request.itensIds().isEmpty()) {
             context.buildConstraintViolationWithTemplate("O pedido deve conter ao menos um item.")
-                    .addPropertyNode("itens")
+                    .addPropertyNode("itensIds")  // Mudei de "itens" para "itensIds"
                     .addConstraintViolation();
             isValid = false;
         }

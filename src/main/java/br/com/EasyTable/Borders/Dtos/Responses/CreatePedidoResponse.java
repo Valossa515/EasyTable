@@ -4,12 +4,13 @@ import br.com.EasyTable.Borders.Entities.ItemCardapio;
 import br.com.EasyTable.Shared.Enums.PedidoStatus;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public record CreatePedidoResponse(
         String id,
         String mesaId,
         List<ItemCardapio> itens,
-        LocalDateTime dataHora,
+        Date dataHora,
         PedidoStatus status
 ) { }
