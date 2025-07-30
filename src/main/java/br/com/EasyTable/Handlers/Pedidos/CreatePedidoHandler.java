@@ -61,33 +61,17 @@ public class CreatePedidoHandler extends HandlerBase<CreatePedidoRequest, Create
 
     @Override
     @Transactional
-    protected CompletableFuture<HandlerResponseWithResult<CreatePedidoResponse>> doExecute(CreatePedidoRequest request) {
+    public CompletableFuture<HandlerResponseWithResult<CreatePedidoResponse>> doExecute(CreatePedidoRequest request) {
         return CompletableFuture.supplyAsync(() -> {
 
             try {
-                Comanda comanda = comandaService.validarComanda(request.comandaId());
-
-                Pedido pedido = pedidoAdapter.toPedido(request);
-                pedido.setComandaId(comanda.getId());
-                pedido.setDataHora(new Date());
-                pedido.setStatus(PedidoStatus.PENDENTE);
-
-                List<ItemCardapio> itensCompletos = itemCardapioRepository.findAllById(request.itensIds());
-                if (itensCompletos.size() != request.itensIds().size()) {
-                    return badRequest(MessageResources.get("error.invalid_items_code"),
-                            MessageResources.get("error.invalid_items_message"));
-                }
-                pedido.setItens(itensCompletos);
-
-                Pedido pedidoSalvo = pedidoRepository.save(pedido);
-
-                redisService.salvar("pedido:" + pedidoSalvo.getId(), pedidoSalvo, 60);
-                kafkaService.enviarPedidoCriado(pedidoSalvo);
-
-                var response = getCreatePedidoResponse(pedidoSalvo);
-
-                logger.info("Pedido feito com sucesso: {}", pedido);
-
+                Comanda comanda = validarComanda(request.comandaId());
+                Pedido pedido = montarPedido(request, comanda);
+                validarItens(pedido, request.itensIds());
+                Pedido pedidoSalvo = salvarPedido(pedido);
+                posSalvar(pedidoSalvo);
+                CreatePedidoResponse response = criarResponse(pedidoSalvo);
+                logger.info("Pedido feito com sucesso: {}", pedidoSalvo);
                 return created(response);
             } catch (Exception ex) {
                 logger.error("Erro ao criar o pedido", ex);
@@ -97,7 +81,37 @@ public class CreatePedidoHandler extends HandlerBase<CreatePedidoRequest, Create
         });
     }
 
-    private CreatePedidoResponse getCreatePedidoResponse(Pedido pedidoSalvo) {
+    public Comanda validarComanda(String comandaId) {
+        return comandaService.validarComanda(comandaId);
+    }
+
+    public void posSalvar(Pedido pedidoSalvo) {
+        redisService.salvar("pedido:" + pedidoSalvo.getId(), pedidoSalvo, 60);
+        kafkaService.enviarPedidoCriado(pedidoSalvo);
+    }
+
+    public Pedido montarPedido(CreatePedidoRequest request, Comanda comanda) {
+        Pedido pedido = pedidoAdapter.toPedido(request);
+        pedido.setComandaId(comanda.getId());
+        pedido.setDataHora(new Date());
+        pedido.setStatus(PedidoStatus.PENDENTE);
+        List<ItemCardapio> itensCompletos = itemCardapioRepository.findAllById(request.itensIds());
+        pedido.setItens(itensCompletos);
+        return pedido;
+    }
+
+    public void validarItens(Pedido pedido, List<String> itensIds) {
+        if (pedido.getItens().size() != itensIds.size()) {
+            throw new IllegalArgumentException(MessageResources.get("error.invalid_items_code"));
+        }
+    }
+
+    public Pedido salvarPedido(Pedido pedido) {
+        return pedidoRepository.save(pedido);
+    }
+
+
+    public CreatePedidoResponse criarResponse(Pedido pedidoSalvo) {
         String qrCodeAcompanhamentoUrl = qrCodeProperties.getBaseUrl() +
                 qrCodeProperties.getStatusPath().replace("{id}", pedidoSalvo.getId());
         String qrCodeContaUrl = qrCodeProperties.getBaseUrl() +
