@@ -30,6 +30,7 @@ public class PedidoAdapterImpl implements IPedidoAdapter {
 
         return Pedido.builder()
                 .mesaId(request.mesaId())
+                .comandaId(request.comandaId())
                 .itens(itens)
                 .dataHora(new Date())
                 .status(PedidoStatus.PENDENTE)

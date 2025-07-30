@@ -16,8 +16,15 @@ public class RedisConfig {
         template.setConnectionFactory(connectionFactory);
 
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        // --- CORREÇÃO AQUI ---
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer()); // Use Jackson para valores
+        // --- FIM DA CORREÇÃO ---
 
+        // Opcional: Se você também quiser que os hash keys e hash values sejam serializados
+        // template.setHashKeySerializer(new StringRedisSerializer());
+        // template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        template.afterPropertiesSet(); // Importante para que as configurações sejam aplicadas
         return template;
     }
 }

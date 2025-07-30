@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Pedido extends DatabaseEntityBase {
     private String mesaId;
+    private String comandaId;
     @Builder.Default
     private List<ItemCardapio> itens = new ArrayList<>();
     private Date dataHora;

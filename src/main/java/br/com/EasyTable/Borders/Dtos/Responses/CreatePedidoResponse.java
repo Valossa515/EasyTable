@@ -10,7 +10,10 @@ import java.util.List;
 public record CreatePedidoResponse(
         String id,
         String mesaId,
+        String comandaId,
         List<ItemCardapio> itens,
         Date dataHora,
-        PedidoStatus status
+        PedidoStatus status,
+        String qrCodeAcompanhamentoUrl,
+        String qrCodeContaUrl
 ) { }
