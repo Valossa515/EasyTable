@@ -1,8 +1,11 @@
 package br.com.EasyTable.API.Controllers.Pedidos;
 
 import br.com.EasyTable.Borders.Dtos.Requests.CreatePedidoRequest;
+import br.com.EasyTable.Borders.Dtos.Requests.UpdateStatusPedidoRequest;
 import br.com.EasyTable.Borders.Handlers.ICreatePedidoHandler;
+import br.com.EasyTable.Borders.Handlers.IUpdateStatusPedidoHandler;
 import br.com.EasyTable.Services.PedidoService;
+import br.com.EasyTable.Shared.Enums.PedidoStatus;
 import br.com.EasyTable.Shared.Models.ResponseEntityConverterImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +18,19 @@ import java.util.concurrent.CompletableFuture;
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos.")
 public class PedidoController {
     private final ICreatePedidoHandler createPedidoHandler;
+    private final IUpdateStatusPedidoHandler updateStatusPedidoHandler;
     private final ResponseEntityConverterImpl responseEntityConverter;
     private final PedidoService pedidoService;
 
     public PedidoController
             (ICreatePedidoHandler createPedidoHandler,
              ResponseEntityConverterImpl responseEntityConverter,
-             PedidoService pedidoService) {
+             PedidoService pedidoService,
+             IUpdateStatusPedidoHandler updateStatusPedidoHandler) {
         this.createPedidoHandler = createPedidoHandler;
         this.responseEntityConverter = responseEntityConverter;
         this.pedidoService = pedidoService;
+        this.updateStatusPedidoHandler = updateStatusPedidoHandler;
     }
 
     @PostMapping("/create")
@@ -34,10 +40,24 @@ public class PedidoController {
                 .thenApplyAsync(response -> responseEntityConverter.convert(response, true));
     }
 
+    @PutMapping("/{id}/status")
+    public CompletableFuture<ResponseEntity<?>> updatePedidoStatus(
+            @PathVariable String id,
+            @RequestParam PedidoStatus status) {
+
+        UpdateStatusPedidoRequest request = new UpdateStatusPedidoRequest(id, status);
+        return updateStatusPedidoHandler.execute(request)
+                .thenApplyAsync(response -> responseEntityConverter.convert(response, true));
+    }
+
     @GetMapping("/{id}/status")
-    public CompletableFuture<ResponseEntity<?>> getPedidoStatus(@PathVariable String id) {
-        return pedidoService.getStatus(id)
-                .thenApply(status -> ResponseEntity.ok().body(status));
+    public CompletableFuture<ResponseEntity<?>> getPedidoStatus(
+            @PathVariable String id,
+            @RequestParam PedidoStatus status) {
+
+        UpdateStatusPedidoRequest request = new UpdateStatusPedidoRequest(id, status);
+        return updateStatusPedidoHandler.execute(request)
+                .thenApplyAsync(response -> responseEntityConverter.convert(response, true));
     }
 
     @GetMapping("/{id}/conta")

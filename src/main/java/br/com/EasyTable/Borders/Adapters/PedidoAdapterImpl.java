@@ -2,13 +2,13 @@ package br.com.EasyTable.Borders.Adapters;
 
 import br.com.EasyTable.Borders.Adapters.Interfaces.IPedidoAdapter;
 import br.com.EasyTable.Borders.Dtos.Requests.CreatePedidoRequest;
+import br.com.EasyTable.Borders.Dtos.Requests.UpdateStatusPedidoRequest;
 import br.com.EasyTable.Borders.Entities.ItemCardapio;
 import br.com.EasyTable.Borders.Entities.Pedido;
 import br.com.EasyTable.Repositories.ItemCardapioRepository;
 import br.com.EasyTable.Shared.Enums.PedidoStatus;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -35,5 +35,12 @@ public class PedidoAdapterImpl implements IPedidoAdapter {
                 .dataHora(new Date())
                 .status(PedidoStatus.PENDENTE)
                 .build();
+    }
+
+    @Override
+    public void updatePedido(Pedido pedido, UpdateStatusPedidoRequest request) {
+        if (request.status() != null) {
+            pedido.setStatus(request.status());
+        }
     }
 }
