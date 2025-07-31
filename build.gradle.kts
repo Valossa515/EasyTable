@@ -79,6 +79,18 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
+tasks.withType<JavaExec> {
+    jvmArgs("-Dfile.encoding=UTF-8")
+}
+
+tasks.bootRun {
+    jvmArgs("-Dfile.encoding=UTF-8")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
 tasks.bootBuildImage {
     runImage = "paketobuildpacks/ubuntu-noble-run-base:latest"
 }

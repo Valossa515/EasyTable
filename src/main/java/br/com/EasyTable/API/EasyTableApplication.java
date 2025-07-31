@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @SpringBootApplication
 @ComponentScan(basePackages = "br.com.EasyTable")
 @EnableMongoRepositories(basePackages = "br.com.EasyTable.Repositories")
